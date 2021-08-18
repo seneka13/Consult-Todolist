@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Card } from 'antd';
 import styled from 'styled-components';
 
 export const TodoList = ({ todoList }) => {
@@ -8,9 +8,9 @@ export const TodoList = ({ todoList }) => {
       <List>
         {todoList.map((item) => {
           return (
-            <li key={item.id}>
-              {item.title}: <time>{item.time}</time>
-            </li>
+            <Card title={item.title} bordered={false} style={{ width: 300 }} key={item.id}>
+              {item.done ? 'Done' : 'To do'}
+            </Card>
           );
         })}
       </List>

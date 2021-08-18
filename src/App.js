@@ -1,28 +1,43 @@
 import React, { useState } from 'react';
 
-import { Button } from './components/Button';
-import { Form } from './components/Form';
-import Modal from './components/Modal';
+import { FormComponent } from './components/Form';
+import { Modal, Button } from 'antd';
 import { TodoList } from './TodoList';
+import styled from 'styled-components';
 
 function App() {
-  const [modalActive, setModalActive] = useState(false);
+  const [visible, setVisible] = useState(false);
   const modalHandler = () => {
-    setModalActive(true);
+    setVisible(true);
   };
-  const [todoList, setTodoList] = useState([
-    { id: Date.now(), title: 'Read a book', time: '15:00' },
-  ]);
+
+  const okHandler = () => {
+    setVisible(false);
+  };
+
+  const cancelHandler = () => {
+    setVisible(false);
+  };
+  const [todoList, setTodoList] = useState([{ id: Date.now(), title: 'Read a book', done: true }]);
 
   return (
     <>
       <TodoList todoList={todoList} />
-      <Button text="Open Modal" className="button-primary" id="prim" onClick={modalHandler} />
-      <Modal modalActive={modalActive} setModal={setModalActive}>
-        <Form setTodoList={setTodoList} setModalActive={setModalActive} />
-      </Modal>
+      <ButtonContainer>
+        <Button type="primary" onClick={modalHandler}>
+          Open Modal
+        </Button>
+        <Modal title="Basic Modal" visible={visible} onOk={okHandler} onCancel={cancelHandler}>
+          <FormComponent setTodoList={setTodoList} setVisible={setVisible} />
+        </Modal>
+      </ButtonContainer>
     </>
   );
 }
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
 export default App;

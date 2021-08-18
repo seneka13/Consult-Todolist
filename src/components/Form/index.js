@@ -1,56 +1,73 @@
-import { useState } from 'react';
+import { Form, Input, Button, Checkbox } from 'antd';
 import styled from 'styled-components';
-import { Button } from '../Button';
 
-export const Form = ({ setTodoList, setModalActive }) => {
-  const [input, setInput] = useState({
-    title: '',
-    time: '',
-  });
-  const submitHandler = (e) => {
-    e.preventDefault();
-    const newTodo = {
-      id: Date.now(),
-      ...input,
-    };
-    if (input.title.trim().length > 0 && input.time.trim().length > 0) {
-      setTodoList((prev) => [...prev, newTodo]);
-      setModalActive(false);
-      setInput({ title: '', time: '' });
-    }
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+
+export const FormComponent = ({ setTodoList, setVisible }) => {
+  const [form] = Form.useForm();
+
+  const onFinish = (values: any) => {
+    setTodoList((prev) => [...prev, { id: Date.now(), ...values }]);
+    setVisible(false);
+  };
+
+  const onReset = () => {
+    form.resetFields();
   };
   return (
-    <FormContainer onSubmit={submitHandler}>
-      <h3>Todo</h3>
-      <label htmlFor="title">
-        Title:
-        <input
-          type="text"
-          name="title"
-          id="title"
-          value={input.title}
-          onChange={(e) => setInput({ ...input, title: e.target.value })}
-        />
-      </label>
-      <label htmlFor="time">
-        Time:
-        <input
-          type="text"
-          name="time"
-          id="time"
-          value={input.time}
-          onChange={(e) => setInput({ ...input, time: e.target.value })}
-        />
-      </label>
-      <Button text="Create Todo" />
-    </FormContainer>
+    <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
+      <Form.Item name="title" label="Title" rules={[{ required: true }]}>
+        <Input />
+      </Form.Item>
+      <Form.Item name="done" label="Done" valuePropName="checked">
+        <Checkbox />
+      </Form.Item>
+      <Form.Item
+        noStyle
+        shouldUpdate={(prevValues, currentValues) => prevValues.gender !== currentValues.gender}
+      >
+        {({ getFieldValue }) =>
+          getFieldValue('gender') === 'other' ? (
+            <Form.Item name="customizeGender" label="Customize Gender" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+          ) : null
+        }
+      </Form.Item>
+      <ButtonContainer>
+        <SubmitButton active={false} htmlType="submit">
+          Submit
+        </SubmitButton>
+        <ResetButton htmlType="button" onClick={onReset}>
+          Reset
+        </ResetButton>
+      </ButtonContainer>
+    </Form>
   );
 };
 
-const FormContainer = styled.form`
-  height: 70%;
+const ButtonContainer = styled.div`
   display: flex;
-  flex-flow: column;
-  align-items: center;
   justify-content: center;
+`;
+
+const SubmitButton = styled(Button)`
+  background: ${(props) => (props.active ? 'rgb (70, 170, 0)' : 'rgb(70, 170, 0)')};
+  color: white;
+  border-radius: 10px;
+
+  &::hover {
+    background: rgb(70, 170, 0);
+    color: white;
+    border: 1px solid wheat;
+  }
+`;
+
+const ResetButton = styled(Button)`
+  background: rgb(170, 60, 0);
+  color: white;
+  border-radius: 10px;
 `;
