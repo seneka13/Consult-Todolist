@@ -1,43 +1,70 @@
-import React, { useState } from 'react';
-
-import { FormComponent } from './components/Form';
-import { Modal, Button } from 'antd';
+import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react';
+import { Spin, Space } from 'antd';
+import { Pagination } from 'antd';
+import { useFetch } from './Hooks/useFetch';
 import { TodoList } from './TodoList';
+import { TodoAjax } from './utils/TodoAjax';
 import styled from 'styled-components';
 
 function App() {
-  const [visible, setVisible] = useState(false);
-  const modalHandler = () => {
-    setVisible(true);
-  };
+  const [todoList, setTodoList] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState('');
+  const [todoFetch, todoLoading, todoError] = useFetch(TodoAjax.get);
+  //   const obsrveElement = useRef();
+  //   const observer = useRef();
 
-  const okHandler = () => {
-    setVisible(false);
-  };
+  //   useEffect(() => {
+  //     if (!todoLoading) {
+  //       return;
+  //     }
+  //     observer.current && observer.current.disconnect();
+  //     const callback = function (entries, observer) {
+  //       if (entries[0].isIntersecting) {
+  //         console.log('object');
+  //         setPage(page + 1);
+  //       }
+  //     };
 
-  const cancelHandler = () => {
-    setVisible(false);
-  };
-  const [todoList, setTodoList] = useState([{ id: Date.now(), title: 'Read a book', done: true }]);
+  //     observer.current = new IntersectionObserver(callback);
+  //     observer.current.observe(obsrveElement.current);
+  //   }, [todoLoading]);
+
+  useEffect(() => {
+    todoFetch(page).then((response) => {
+      if (!totalCount) {
+        setTotalCount(response.headers['x-total-count']);
+      }
+      setTodoList(response?.data);
+    });
+  }, [page]);
+  console.log(page);
 
   return (
-    <>
+    <Container>
       <TodoList todoList={todoList} />
-      <ButtonContainer>
-        <Button type="primary" onClick={modalHandler}>
-          Open Modal
-        </Button>
-        <Modal title="Basic Modal" visible={visible} onOk={okHandler} onCancel={cancelHandler}>
-          <FormComponent setTodoList={setTodoList} setVisible={setVisible} />
-        </Modal>
-      </ButtonContainer>
-    </>
+      <Pagination
+        onChange={(page) => setPage(page)}
+        total={totalCount}
+        showTotal={(total) => `Total ${total} items`}
+        defaultPageSize={10}
+        defaultCurrent={1}
+      />
+      {/* <div style={{ height: '20px' }} ref={obsrveElement}></div> */}
+    </Container>
   );
 }
 
-const ButtonContainer = styled.div`
+const Loader = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
+`;
+
+const Container = styled.div`
+  min-heigth: 100vh;
+  padding: 20px;
 `;
 
 export default App;
